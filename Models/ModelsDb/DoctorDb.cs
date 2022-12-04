@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace Models.ModelsDb
 {
@@ -28,16 +29,11 @@ namespace Models.ModelsDb
         [Column("full_description")]
         public string FullDescription { get; set; }
 
-        [Column("polyclinic_id")]
-        public Guid PolyclinicId { get; set; }
-
-        [Column("specialization_id")]
-        public Guid SpecializationId { get; set; }
+        [JsonIgnore]
+        [ForeignKey(nameof(DoctorId))]
+        public ICollection<PolyclinicDb> Polyclinics { get; set; } = new List<PolyclinicDb>();
 
         [ForeignKey(nameof(DoctorId))]
-        public ICollection<PolyclinicDb> Polyclinics { get; set; }
-
-        [ForeignKey(nameof(DoctorId))]
-        public ICollection<SpecializationDb> Specializations { get; set; }
+        public ICollection<SpecializationDb> Specializations { get; set; } = new List<SpecializationDb>();
     }
 }

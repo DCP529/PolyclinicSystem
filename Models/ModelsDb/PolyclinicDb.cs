@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace Models.ModelsDb
 {
@@ -27,10 +28,11 @@ namespace Models.ModelsDb
 
         [Column("doctor_id")]
         public Guid DoctorId { get; set; }
-                
+
+        [JsonIgnore]
         public CityDb City { get; set; }
 
         [ForeignKey(nameof(DoctorId))]
-        public ICollection<DoctorDb> Doctors { get; set; }
+        public ICollection<DoctorDb> Doctors { get; set; } = new List<DoctorDb>();
     }
 }

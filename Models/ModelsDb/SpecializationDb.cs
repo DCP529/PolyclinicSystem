@@ -20,6 +20,6 @@ namespace Models.ModelsDb
         public int ExperienceSpecialization { get; set; }
 
         [ForeignKey(nameof(DoctorId))]
-        public ICollection<DoctorDb> Doctors { get; set; }
+        public ICollection<DoctorDb> Doctors { get; set; } = new List<DoctorDb>();
     }
 }

@@ -6,11 +6,12 @@ namespace Models.ModelsDb
     {
         public DbSet<CityDb> Cities { get; set; }
         public DbSet<PolyclinicDb> Polyclinics { get; set; }
-        public DbSet<DoctorDb> Doctrors { get; set; }
+        public DbSet<DoctorDb> Doctors { get; set; }
         public DbSet<SpecializationDb> Specializations { get; set;  }
 
         public PolyclinicDbContext()
         {
+            Database.EnsureDeleted();
             Database.EnsureCreated();
         }
 
