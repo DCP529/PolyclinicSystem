@@ -10,6 +10,7 @@ namespace Models
         public string Name { get; set; }
         public string Address { get; set; }
         public int ContactNumber { get; set; }
+        [JsonIgnore]
         public IFormFile Image { get; set; }
         public Guid CityId { get; set; }
         public Guid DoctorId { get; set; }

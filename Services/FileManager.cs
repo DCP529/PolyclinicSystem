@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,9 +8,9 @@ using System.Threading.Tasks;
 
 namespace Services
 {
-    public class FileManager
+    public class FileManager : ControllerBase
     {
-        public async Task SaveImageAsync(IFormFile file, string path)
+        public static async Task SaveImageAsync(IFormFile file, string path)
         {
             var dirInfo = new DirectoryInfo(path);
 
@@ -20,23 +21,26 @@ namespace Services
 
             var fullPath = Path.Combine(path, $"{file.FileName}");
 
-            await using var fileStream = new FileStream(fullPath, FileMode.Open, FileAccess.Read, FileShare.Read);
+            await using var fileStream = new FileStream(fullPath, FileMode.Create);
 
             await file.CopyToAsync(fileStream);
         }
 
-        public void DeleteImage(IFormFile file, string path)
+        public async Task<IActionResult> GetImageAsync(string filePath)
         {
-            var dirInfo = new DirectoryInfo(path);
-
-            if (!dirInfo.Exists)
+            if (System.IO.File.Exists(filePath))
             {
-                dirInfo.Create();
+                byte[] reader = await System.IO.File.ReadAllBytesAsync(filePath);
+
+                return File(reader, "image/png");
             }
 
-            var fullPath = Path.Combine(path, $"{file.FileName}");
+            return new BadRequestObjectResult(ModelState);
+        }
 
-            var fileStream = new FileInfo(fullPath);
+        public static void DeleteImage(string path)
+        {
+            var fileStream = new FileInfo(path);
 
             if (fileStream.Exists)
             {

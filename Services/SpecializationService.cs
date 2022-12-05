@@ -18,20 +18,18 @@ namespace Services
             _mapper = mapper;
         }
 
-        public async Task<List<Specialization>> GetSpecializationsAsync(string specializationName)
+        public async Task<List<Specialization>> GetSpecializationsAsync()
         {
-            var query = await _dbContext.Specializations.ToListAsync();
-
-            return _mapper.Map<List<Specialization>>(query);
+            return _mapper.Map<List<Specialization>>(await _dbContext.Specializations.ToListAsync());
         }
 
         public async Task<IActionResult> AddSpecializationAsync(Specialization specialization)
         {
             var requestResult = await ExistSpecializationAsync(specialization);
 
-            if (requestResult is BadRequestResult)
+            if (requestResult is not BadRequestResult)
             {
-                return requestResult;
+                return new BadRequestResult();
             }
 
             var mappedSpecialization = _mapper.Map<SpecializationDb>(specialization);
@@ -39,7 +37,7 @@ namespace Services
             await _dbContext.Specializations.AddAsync(mappedSpecialization);
             await _dbContext.SaveChangesAsync();
 
-            return requestResult;
+            return new StatusCodeResult(200);
         }
 
         public async Task<IActionResult> ExistSpecializationAsync(Specialization specialization)
@@ -54,23 +52,25 @@ namespace Services
             };
         }
 
-        public async Task<IActionResult> DeleteAsync(Specialization specialization)
+        public async Task<IActionResult> DeleteSpecializationAsync(string specializationName)
         {
-            var requestResult = await ExistSpecializationAsync(specialization);
+            var getSpecialization = await _dbContext.Specializations.Where(x => x.Name == specializationName).FirstOrDefaultAsync();
 
-            if (requestResult is not BadRequestResult)
+            var requestResult = await ExistSpecializationAsync(_mapper.Map<Specialization>(getSpecialization));
+
+            if (requestResult is BadRequestResult)
             {
-                return new BadRequestResult();
+                return requestResult;
             }
 
-            _dbContext.Specializations.Remove(_mapper.Map<SpecializationDb>(specialization));
+            _dbContext.Specializations.Remove(getSpecialization);
 
             await _dbContext.SaveChangesAsync();
 
-            return new StatusCodeResult(200);
+            return requestResult;
         }
 
-        public async Task<IActionResult> UpdateAsync(Specialization specialization)
+        public async Task<IActionResult> UpdateSpecializationAsync(Specialization specialization)
         {
             var requestResult = await ExistSpecializationAsync(specialization);
 

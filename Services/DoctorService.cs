@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Models;
 using Models.ModelsDb;
 using Services.Filters;
+using System.Collections.Generic;
 
 namespace Services
 {
@@ -26,34 +27,28 @@ namespace Services
 
         public async Task<List<Doctor>> GetDoctorsAsync(DoctorFilter filter)
         {
-            var query = _dbContext.Specializations.Include(x => x).AsQueryable();
+            var query = _dbContext.Doctors.AsQueryable();
 
             if (filter.FIO != null)
             {
-                var doctor = await _dbContext.Doctors
-                .Where(x => x.FIO == filter.FIO)
-                .FirstOrDefaultAsync();
-
-                query = query.Where(x => x.DoctorId == doctor.DoctorId);
+                query = query.Where(x => x.FIO == filter.FIO);
             }
 
             if (filter.Specialization != null)
             {
-                query = query.Where(x => x.Name == filter.Specialization);
+                query = query.Where(x => x == x.Specializations.Where(x => x.Name == filter.Specialization));
             }
 
-            var docotors = await query.FirstOrDefaultAsync();
-
-            return _mapper.Map<List<Doctor>>(docotors.Doctors);
+            return _mapper.Map<List<Doctor>>(await query.ToListAsync());
         }
 
         public async Task<IActionResult> AddDoctorAsync(Doctor doctor)
         {
             var requestResult = await ExistDoctorAsync(doctor);
 
-            if (requestResult is BadRequestResult)
+            if (requestResult is not BadRequestResult)
             {
-                return requestResult;
+                return new BadRequestResult();
             }
 
             var mappedDoctor = _mapper.Map<DoctorDb>(doctor);
@@ -61,9 +56,9 @@ namespace Services
             await _dbContext.Doctors.AddAsync(mappedDoctor);
             await _dbContext.SaveChangesAsync();
 
-            await new FileManager().SaveImageAsync(doctor.Image, path);
+            await FileManager.SaveImageAsync(doctor.Image, path);
 
-            return requestResult;
+            return new StatusCodeResult(200);
         }
 
         public async Task<IActionResult> ExistDoctorAsync(Doctor doctor)
@@ -77,27 +72,27 @@ namespace Services
             };
         }
 
-        public async Task<IActionResult> DeleteAsync(string doctorFIO)
+        public async Task<IActionResult> DeleteDoctorAsync(string doctorFIO)
         {
             var doctor = await _dbContext.Doctors.Where(x => x.FIO == doctorFIO).FirstOrDefaultAsync();
 
             var requestResult = await ExistDoctorAsync(_mapper.Map<Doctor>(doctor));
 
-            if (requestResult is not BadRequestResult)
+            if (requestResult is BadRequestResult)
             {
                 return new BadRequestResult();
             }
 
             _dbContext.Doctors.Remove(doctor);
 
-            new FileManager().DeleteImage(_mapper.Map<Doctor>(doctor).Image, path);
+            FileManager.DeleteImage(doctor.ImagePath);
 
             await _dbContext.SaveChangesAsync();
 
             return new StatusCodeResult(200);
         }
 
-        public async Task<IActionResult> UpdateAsync(Doctor doctor)
+        public async Task<IActionResult> UpdateDoctorAsync(Doctor doctor)
         {
             var requestResult = await ExistDoctorAsync(doctor);
 
@@ -112,11 +107,18 @@ namespace Services
 
             await _dbContext.SaveChangesAsync();
 
-            new FileManager().DeleteImage(_mapper.Map<Doctor>(getDoctor).Image, path);
+            FileManager.DeleteImage(getDoctor.ImagePath);
 
-            await new FileManager().SaveImageAsync(doctor.Image, path);
+            await FileManager.SaveImageAsync(doctor.Image, path);
 
             return requestResult;
+        }
+
+        public async Task<IActionResult> GetImageDoctorAsync(Guid doctorId)
+        {
+            var getDoctor = await _dbContext.Doctors.Where(x => x.DoctorId == doctorId).FirstOrDefaultAsync();
+
+            return await new FileManager().GetImageAsync(getDoctor.ImagePath);
         }
     }
 }

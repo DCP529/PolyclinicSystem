@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Models;
 using Models.ModelsDb;
-using System.Numerics;
 
 namespace Services
 {
@@ -23,20 +22,18 @@ namespace Services
             path = _webHostEvironment.WebRootPath + "\\Images\\";
         }
 
-        public async Task<List<Polyclinic>> GetPolyclinicsAsync(string cityName)
+        public async Task<List<Polyclinic>> GetPolyclinicsAsync()
         {
-            var query = await _dbContext.Cities.Include(x => x.Name == cityName).FirstOrDefaultAsync();
-
-            return _mapper.Map<List<Polyclinic>>(query.Polyclinics);
+            return _mapper.Map<List<Polyclinic>>(_dbContext.Polyclinics.Select(x => x).ToList());
         }
         
         public async Task<IActionResult> AddPolyclinicAsync(Polyclinic polyclinic)
         {
             var requestResult = await ExistPolyclinicAsync(polyclinic);
 
-            if (requestResult is BadRequestResult)
+            if (requestResult is not BadRequestResult)
             {
-                return requestResult;
+                return new BadRequestResult();
             }
 
             var mappedPolyclinic = _mapper.Map<PolyclinicDb>(polyclinic);
@@ -44,9 +41,9 @@ namespace Services
             await _dbContext.Polyclinics.AddAsync(mappedPolyclinic);
             await _dbContext.SaveChangesAsync();
 
-            await new FileManager().SaveImageAsync(polyclinic.Image, path);
+            await FileManager.SaveImageAsync(polyclinic.Image, path);
 
-            return requestResult;
+            return new StatusCodeResult(200);
         }
 
         public async Task<IActionResult> ExistPolyclinicAsync(Polyclinic polyclinic)
@@ -60,8 +57,11 @@ namespace Services
             };
         }
         
-        public async Task<IActionResult> DeleteAsync(Polyclinic polyclinic)
+        public async Task<IActionResult> DeletePolyclinicAsync(Polyclinic polyclinic)
         {
+            var polyclinicDb = await _dbContext.Polyclinics.Where(x => x.Name == polyclinic.Name)
+                .FirstOrDefaultAsync();
+
             var requestResult = await ExistPolyclinicAsync(polyclinic);
 
             if (requestResult is not BadRequestResult)
@@ -69,16 +69,16 @@ namespace Services
                 return new BadRequestResult();
             }
 
-            _dbContext.Polyclinics.Remove(_mapper.Map<PolyclinicDb>(polyclinic));
+            _dbContext.Polyclinics.Remove(polyclinicDb);
 
             await _dbContext.SaveChangesAsync();
 
-            new FileManager().DeleteImage(polyclinic.Image, path);
+            FileManager.DeleteImage(polyclinic.Image.FileName);
 
             return new StatusCodeResult(200);
         }
 
-        public async Task<IActionResult> UpdateAsync(Polyclinic polyclinic)
+        public async Task<IActionResult> UpdatePolyclinicAsync(Polyclinic polyclinic)
         {
             var requestResult = await ExistPolyclinicAsync(polyclinic);
 
@@ -94,11 +94,19 @@ namespace Services
 
             await _dbContext.SaveChangesAsync();
 
-            new FileManager().DeleteImage(_mapper.Map<Polyclinic>(getPolyclinic).Image, path);
+            FileManager.DeleteImage(getPolyclinic.ImagePath);
 
-            await new FileManager().SaveImageAsync(polyclinic.Image, path);
+            await FileManager.SaveImageAsync(polyclinic.Image, path);
 
             return requestResult;
+        }
+
+        public async Task<IActionResult> GetImagePolyclinicAsync(Guid polyclinicId)
+        {
+            var getPolyclinicId = await _dbContext.Polyclinics.Where(x => x.PolyclinicId == polyclinicId)
+                .FirstOrDefaultAsync();
+
+            return await new FileManager().GetImageAsync(getPolyclinicId.ImagePath);
         }
     }
 }

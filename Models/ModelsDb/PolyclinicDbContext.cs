@@ -11,8 +11,6 @@ namespace Models.ModelsDb
 
         public PolyclinicDbContext()
         {
-            Database.EnsureDeleted();
-            Database.EnsureCreated();
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionBuilder)
