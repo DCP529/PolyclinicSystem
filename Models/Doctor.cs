@@ -9,6 +9,7 @@ namespace Models
         public string FIO { get; set; }       
         public decimal AdmissionCost { get; set; }
         public int ContactNumber { get; set; }
+        [JsonIgnore]
         public IFormFile Image { get; set; }
         public string ShortDescription { get; set; }
         public string FullDescription { get; set; }

@@ -26,19 +26,19 @@ namespace Services
         {
             var requestResult = await ExistCityAsync(cityName);
 
-            if (requestResult is BadRequestResult)
+            if (requestResult is not BadRequestResult)
             {
-                return requestResult;
+                return new BadRequestResult();
             }
 
-            var city = await _dbContext.Cities.Where(x => x.Name == cityName).FirstOrDefaultAsync();
-
-            var mappedCity = _mapper.Map<CityDb>(city);
-
-            await _dbContext.Cities.AddAsync(mappedCity);
+            await _dbContext.Cities.AddAsync(new CityDb()
+            {
+                Name = cityName,
+                CityId = Guid.NewGuid()
+            });
             await _dbContext.SaveChangesAsync();
 
-            return requestResult;
+            return new StatusCodeResult(200);
         }
 
         public async Task<IActionResult> ExistCityAsync(string cityName)
@@ -52,38 +52,36 @@ namespace Services
             };
         }
 
-        public async Task<IActionResult> UpdateAsync(City city)
+        public async Task<IActionResult> UpdateCityAsync(City city)
         {
-            var requestResult = await ExistCityAsync(city.Name);
+            var getCity = await _dbContext.Cities.Where(x => x.CityId == city.CityId).FirstOrDefaultAsync();
+
+            if (getCity == null)
+            {
+                return new BadRequestResult();
+            }
+
+            _dbContext.Entry(getCity).CurrentValues.SetValues(_mapper.Map<CityDb>(city));
+
+            await _dbContext.SaveChangesAsync();
+
+            return new StatusCodeResult(200);
+        }
+
+        public async Task<IActionResult> DeleteCityAsync(string cityName)
+        {
+            var requestResult = await ExistCityAsync(cityName);
 
             if (requestResult is BadRequestResult)
             {
                 return requestResult;
             }
 
-            var getCity = await _dbContext.Cities.Where(x => x.CityId == city.CityId).FirstOrDefaultAsync();
-
-            _dbContext.Entry(getCity).CurrentValues.SetValues(_mapper.Map<CityDb>(city));
-
-            await _dbContext.SaveChangesAsync();
-
-            return requestResult;
-        }
-
-        public async Task<IActionResult> DeleteAsync(string cityName)
-        {
-            var requestResult = await ExistCityAsync(cityName);
-
-            if (requestResult is not BadRequestResult)
-            {
-                return new BadRequestResult();
-            }
-
             _dbContext.Cities.Remove(await _dbContext.Cities.Where(x => x.Name == cityName).FirstOrDefaultAsync());
 
             await _dbContext.SaveChangesAsync();
 
-            return new StatusCodeResult(200);
+            return requestResult;
         }
     }
 }
