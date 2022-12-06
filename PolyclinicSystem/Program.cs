@@ -1,5 +1,8 @@
+using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
+using Models;
 using Models.Mapping;
+using Models.Validations;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +14,11 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddAutoMapper(typeof(MappingProfile));
+
+builder.Services.AddScoped<AbstractValidator<City>, CityValidator>();
+builder.Services.AddScoped<AbstractValidator<Doctor>, DoctorValidator>();
+builder.Services.AddScoped<AbstractValidator<Specialization>, SpecializationValidator>();
+builder.Services.AddScoped<AbstractValidator<Polyclinic>, PolyclinicValidator>();
 
 var app = builder.Build();
 

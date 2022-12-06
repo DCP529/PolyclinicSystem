@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
+using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Models;
+using Models.Validations;
 using Services;
 using Services.Filters;
 
@@ -12,12 +14,14 @@ namespace PolyclinicSystem.Controllers
         private DoctorService _doctorService;
         private IMapper _mapper;
         private IWebHostEnvironment _webHostEvironment;
+        private DoctorValidator _doctorValidator;
 
-        public DoctorController(IMapper mapper, IWebHostEnvironment webHostEvironment)
+        public DoctorController(IMapper mapper, IWebHostEnvironment webHostEvironment, DoctorValidator doctorValidator)
         {
             _mapper = mapper;
             _webHostEvironment = webHostEvironment;
             _doctorService = new DoctorService(_mapper, _webHostEvironment);
+            _doctorValidator = doctorValidator;
         }
 
         [HttpGet]
@@ -36,12 +40,22 @@ namespace PolyclinicSystem.Controllers
         [HttpPost]
         public async Task<IActionResult> AddDoctorAsync(Doctor doctor)
         {
+            if (_doctorValidator.Validate(doctor).Errors.Count != 0)
+            {
+                throw new ValidationException(_doctorValidator.Validate(doctor).Errors);
+            }
+
             return await _doctorService.AddDoctorAsync(doctor);
         }
 
         [HttpPut]
         public async Task<IActionResult> UpdateDoctorAsync(Doctor doctor)
         {
+            if (_doctorValidator.Validate(doctor).Errors.Count != 0)
+            {
+                throw new ValidationException(_doctorValidator.Validate(doctor).Errors);
+            }
+
             return await _doctorService.UpdateDoctorAsync(doctor);
         }
 
