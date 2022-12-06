@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
+using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Models;
+using Models.Validations;
 using Services;
 
 namespace PolyclinicSystem.Controllers
@@ -10,11 +12,13 @@ namespace PolyclinicSystem.Controllers
     {
         private SpecializationService _specializationService;
         private IMapper _mapper;
+        private SpecializationValidator _specializationValidator;
 
-        public SpecializationController(IMapper mapper)
+        public SpecializationController(IMapper mapper, SpecializationValidator specializationValidator)
         {
             _mapper = mapper;
             _specializationService = new SpecializationService(_mapper);
+            _specializationValidator = specializationValidator;
         }
 
         [HttpGet]
@@ -26,12 +30,22 @@ namespace PolyclinicSystem.Controllers
         [HttpPost]
         public async Task<IActionResult> AddSpecializationAsync(Specialization specialization)
         {
+            if (_specializationValidator.Validate(specialization).Errors.Count != 0)
+            {
+                throw new ValidationException(_specializationValidator.Validate(specialization).Errors);
+            }
+
             return await _specializationService.AddSpecializationAsync(specialization);
         }
 
         [HttpPut]
         public async Task<IActionResult> UpdateSpecializationAsync(Specialization specialization)
         {
+            if (_specializationValidator.Validate(specialization).Errors.Count != 0)
+            {
+                throw new ValidationException(_specializationValidator.Validate(specialization).Errors);
+            }
+
             return await _specializationService.UpdateSpecializationAsync(specialization);
         }
 

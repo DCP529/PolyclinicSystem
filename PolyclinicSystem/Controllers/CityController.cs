@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
+using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Models;
+using Models.Validations;
 using Services;
 
 namespace PolyclinicSystem.Controllers
@@ -10,11 +12,13 @@ namespace PolyclinicSystem.Controllers
     {
         private CityService _cityService;
         private IMapper _mapper;
+        private CityValidator _cityValidator;
 
-        public CityController(IMapper mapper)
+        public CityController(IMapper mapper, CityValidator cityValidator)
         {
             _mapper = mapper;
             _cityService = new CityService(_mapper);
+            _cityValidator = cityValidator;
         }
 
         [HttpGet]
@@ -32,6 +36,11 @@ namespace PolyclinicSystem.Controllers
         [HttpPut]
         public async Task<IActionResult> UpdateCityAsync(City city)
         {
+            if (_cityValidator.Validate(city).Errors.Count != 0)
+            {
+                throw new ValidationException(_cityValidator.Validate(city).Errors);
+            }
+
             return await _cityService.UpdateCityAsync(city);
         }
 
