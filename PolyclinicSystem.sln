@@ -7,7 +7,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PolyclinicSystem", "Polycli
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Models", "Models\Models.csproj", "{19998FDF-94BA-47FB-8B9E-2FC452A8D3DB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Services", "Services\Services.csproj", "{8BED6AFC-E1C8-4156-8259-CC87E7022CA0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Services", "Services\Services.csproj", "{8BED6AFC-E1C8-4156-8259-CC87E7022CA0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthenticationOptions", "AuthenticationOptions\AuthenticationOptions.csproj", "{9AEE66DA-086B-410C-A1B1-41D269C402CF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +29,10 @@ Global
 		{8BED6AFC-E1C8-4156-8259-CC87E7022CA0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8BED6AFC-E1C8-4156-8259-CC87E7022CA0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8BED6AFC-E1C8-4156-8259-CC87E7022CA0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9AEE66DA-086B-410C-A1B1-41D269C402CF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9AEE66DA-086B-410C-A1B1-41D269C402CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9AEE66DA-086B-410C-A1B1-41D269C402CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9AEE66DA-086B-410C-A1B1-41D269C402CF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

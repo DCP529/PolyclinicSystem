@@ -1,9 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Npgsql;
 
 namespace Models.ModelsDb
 {
     public class PolyclinicDbContext : DbContext
     {
+        public DbSet<AccountDb> Accounts { get; set; }
+        public DbSet<RoleDb> Roles { get; set; }
+        public DbSet<LoginDb> Logins { get; set; }
         public DbSet<CityDb> Cities { get; set; }
         public DbSet<PolyclinicDb> Polyclinics { get; set; }
         public DbSet<DoctorDb> Doctors { get; set; }

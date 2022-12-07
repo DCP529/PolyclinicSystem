@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
 using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Models;
 using Models.Validations;
 using Services;
+using System.Security.Claims;
 
 namespace PolyclinicSystem.Controllers
 {
@@ -13,12 +15,13 @@ namespace PolyclinicSystem.Controllers
         private SpecializationService _specializationService;
         private IMapper _mapper;
         private SpecializationValidator _specializationValidator;
+        private Guid _userId => Guid.Parse(User.Claims.Single(c => c.Type == ClaimTypes.NameIdentifier).Value);
 
-        public SpecializationController(IMapper mapper, SpecializationValidator specializationValidator)
+        public SpecializationController(IMapper mapper, AbstractValidator<Specialization> specializationValidator)
         {
             _mapper = mapper;
             _specializationService = new SpecializationService(_mapper);
-            _specializationValidator = specializationValidator;
+            _specializationValidator = (SpecializationValidator)specializationValidator;
         }
 
         [HttpGet]
@@ -27,6 +30,7 @@ namespace PolyclinicSystem.Controllers
             return await _specializationService.GetSpecializationsAsync();
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<IActionResult> AddSpecializationAsync(Specialization specialization)
         {
@@ -38,6 +42,7 @@ namespace PolyclinicSystem.Controllers
             return await _specializationService.AddSpecializationAsync(specialization);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPut]
         public async Task<IActionResult> UpdateSpecializationAsync(Specialization specialization)
         {
@@ -49,6 +54,7 @@ namespace PolyclinicSystem.Controllers
             return await _specializationService.UpdateSpecializationAsync(specialization);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpDelete]
         public async Task<IActionResult> DeleteSpecializationAsync(string specializationName)
         {

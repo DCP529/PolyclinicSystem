@@ -1,10 +1,12 @@
 ﻿using AutoMapper;
 using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Models;
 using Models.Validations;
 using Services;
 using Services.Filters;
+using System.Security.Claims;
 
 namespace PolyclinicSystem.Controllers
 {
@@ -15,13 +17,14 @@ namespace PolyclinicSystem.Controllers
         private IMapper _mapper;
         private IWebHostEnvironment _webHostEvironment;
         private DoctorValidator _doctorValidator;
+        private Guid _userId => Guid.Parse(User.Claims.Single(c => c.Type == ClaimTypes.NameIdentifier).Value);
 
-        public DoctorController(IMapper mapper, IWebHostEnvironment webHostEvironment, DoctorValidator doctorValidator)
+        public DoctorController(IMapper mapper, IWebHostEnvironment webHostEvironment, AbstractValidator<Doctor> doctorValidator)
         {
             _mapper = mapper;
             _webHostEvironment = webHostEvironment;
             _doctorService = new DoctorService(_mapper, _webHostEvironment);
-            _doctorValidator = doctorValidator;
+            _doctorValidator = (DoctorValidator)doctorValidator;
         }
 
         [HttpGet]
@@ -37,6 +40,7 @@ namespace PolyclinicSystem.Controllers
             return await _doctorService.GetImageDoctorAsync(doctorId);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<IActionResult> AddDoctorAsync(Doctor doctor)
         {
@@ -48,6 +52,7 @@ namespace PolyclinicSystem.Controllers
             return await _doctorService.AddDoctorAsync(doctor);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPut]
         public async Task<IActionResult> UpdateDoctorAsync(Doctor doctor)
         {
@@ -59,6 +64,7 @@ namespace PolyclinicSystem.Controllers
             return await _doctorService.UpdateDoctorAsync(doctor);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpDelete]
         public async Task<IActionResult> DeleteDoctorAsync(string doctorFIO)
         {

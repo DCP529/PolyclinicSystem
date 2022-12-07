@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Models.Migrations
 {
     /// <inheritdoc />
-    public partial class Init : Migration
+    public partial class Authentication : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -33,13 +33,35 @@ namespace Models.Migrations
                     contactnumber = table.Column<int>(name: "contact_number", type: "integer", nullable: false),
                     imagepath = table.Column<string>(name: "image_path", type: "text", nullable: false),
                     shortdescription = table.Column<string>(name: "short_description", type: "text", nullable: false),
-                    fulldescription = table.Column<string>(name: "full_description", type: "text", nullable: false),
-                    polyclinicid = table.Column<Guid>(name: "polyclinic_id", type: "uuid", nullable: false),
-                    specializationid = table.Column<Guid>(name: "specialization_id", type: "uuid", nullable: false)
+                    fulldescription = table.Column<string>(name: "full_description", type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_doctror", x => x.doctorid);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "login",
+                columns: table => new
+                {
+                    email = table.Column<string>(type: "text", nullable: false),
+                    password = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_login", x => x.email);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "roles",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    role = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_roles", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
@@ -76,6 +98,26 @@ namespace Models.Migrations
                         column: x => x.cityid,
                         principalTable: "city",
                         principalColumn: "city_id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "account",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    email = table.Column<string>(type: "text", nullable: false),
+                    password = table.Column<string>(type: "text", nullable: false),
+                    roleid = table.Column<Guid>(name: "role_id", type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_account", x => x.id);
+                    table.ForeignKey(
+                        name: "FK_account_roles_role_id",
+                        column: x => x.roleid,
+                        principalTable: "roles",
+                        principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -126,6 +168,11 @@ namespace Models.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_account_role_id",
+                table: "account",
+                column: "role_id");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_polyclinic_city_id",
                 table: "polyclinic",
                 column: "city_id");
@@ -135,10 +182,19 @@ namespace Models.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "account");
+
+            migrationBuilder.DropTable(
                 name: "DoctorDbPolyclinicDb");
 
             migrationBuilder.DropTable(
                 name: "DoctorDbSpecializationDb");
+
+            migrationBuilder.DropTable(
+                name: "login");
+
+            migrationBuilder.DropTable(
+                name: "roles");
 
             migrationBuilder.DropTable(
                 name: "polyclinic");
