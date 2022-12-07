@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
 using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Models;
 using Models.Validations;
 using Services;
+using System.Security.Claims;
 
 namespace PolyclinicSystem.Controllers
 {
@@ -14,13 +16,14 @@ namespace PolyclinicSystem.Controllers
         private IMapper _mapper;
         private IWebHostEnvironment _webHostEvironment;
         private PolyclinicValidator _polyclinicValidator;
+        private Guid _userId => Guid.Parse(User.Claims.Single(c => c.Type == ClaimTypes.NameIdentifier).Value);
 
-        public PolyclinicController(IMapper mapper, IWebHostEnvironment webHostEvironment, PolyclinicValidator polyclinicValidator)
+        public PolyclinicController(IMapper mapper, IWebHostEnvironment webHostEvironment, AbstractValidator<Polyclinic> polyclinicValidator)
         {
             _webHostEvironment = webHostEvironment;
             _mapper = mapper;
             _polyclinicService = new PolyclinicService(_mapper, _webHostEvironment);   
-            _polyclinicValidator = polyclinicValidator;
+            _polyclinicValidator = (PolyclinicValidator)polyclinicValidator;
         }
 
         [HttpGet]
@@ -36,6 +39,7 @@ namespace PolyclinicSystem.Controllers
             return await _polyclinicService.GetImagePolyclinicAsync(polyclinicId);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<IActionResult> AddPolyclinicAsync(Polyclinic polyclinic)
         {
@@ -47,6 +51,7 @@ namespace PolyclinicSystem.Controllers
             return await _polyclinicService.AddPolyclinicAsync(polyclinic);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPut]
         public async Task<IActionResult> UpdatePolyclinicAsync(Polyclinic polyclinic)
         {
@@ -58,6 +63,7 @@ namespace PolyclinicSystem.Controllers
             return await _polyclinicService.UpdatePolyclinicAsync(polyclinic);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpDelete]
         public async Task<IActionResult> DeletePolyclinicAsync(Polyclinic polyclinic)
         {

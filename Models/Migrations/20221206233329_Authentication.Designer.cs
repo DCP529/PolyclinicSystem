@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Models.Migrations
 {
     [DbContext(typeof(PolyclinicDbContext))]
-    [Migration("20221202194353_Init")]
-    partial class Init
+    [Migration("20221206233329_Authentication")]
+    partial class Authentication
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -43,6 +43,34 @@ namespace Models.Migrations
                     b.HasKey("DoctorId");
 
                     b.ToTable("DoctorDbSpecializationDb");
+                });
+
+            modelBuilder.Entity("Models.ModelsDb.AccountDb", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("email");
+
+                    b.Property<string>("Password")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("password");
+
+                    b.Property<Guid>("RoleId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("role_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("account");
                 });
 
             modelBuilder.Entity("Models.ModelsDb.CityDb", b =>
@@ -92,22 +120,30 @@ namespace Models.Migrations
                         .HasColumnType("text")
                         .HasColumnName("image_path");
 
-                    b.Property<Guid>("PolyclinicId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("polyclinic_id");
-
                     b.Property<string>("ShortDescription")
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("short_description");
 
-                    b.Property<Guid>("SpecializationId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("specialization_id");
-
                     b.HasKey("DoctorId");
 
                     b.ToTable("doctror");
+                });
+
+            modelBuilder.Entity("Models.ModelsDb.LoginDb", b =>
+                {
+                    b.Property<string>("Email")
+                        .HasColumnType("text")
+                        .HasColumnName("email");
+
+                    b.Property<string>("Password")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("password");
+
+                    b.HasKey("Email");
+
+                    b.ToTable("login");
                 });
 
             modelBuilder.Entity("Models.ModelsDb.PolyclinicDb", b =>
@@ -149,6 +185,23 @@ namespace Models.Migrations
                     b.HasIndex("CityId");
 
                     b.ToTable("polyclinic");
+                });
+
+            modelBuilder.Entity("Models.ModelsDb.RoleDb", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("RoleName")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("role");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("roles");
                 });
 
             modelBuilder.Entity("Models.ModelsDb.SpecializationDb", b =>
@@ -204,6 +257,17 @@ namespace Models.Migrations
                         .HasForeignKey("DoctorId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Models.ModelsDb.AccountDb", b =>
+                {
+                    b.HasOne("Models.ModelsDb.RoleDb", "Role")
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Role");
                 });
 
             modelBuilder.Entity("Models.ModelsDb.PolyclinicDb", b =>

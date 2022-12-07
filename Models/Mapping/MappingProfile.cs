@@ -9,6 +9,12 @@ namespace Models.Mapping
         {
             CreateMap<City, CityDb>().ReverseMap();
 
+            CreateMap<Account, AccountDb>().ReverseMap();
+
+            CreateMap<Role, RoleDb>().ReverseMap();
+
+            CreateMap<Login, LoginDb>().ReverseMap();
+
             CreateMap<Specialization, SpecializationDb>().ReverseMap();
 
             CreateMap<DoctorDb, Doctor>().ReverseMap()
