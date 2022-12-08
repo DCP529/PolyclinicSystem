@@ -1,6 +1,7 @@
 using AuthenticationOptions;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.SpaServices.AngularCli;
 using Microsoft.Extensions.DependencyInjection;
 using Models;
 using Models.Mapping;
@@ -20,6 +21,11 @@ var authOptions = builder.Configuration.GetSection("Auth").Get<AuthOptions>();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddSpaStaticFiles(configuration =>
+{
+    configuration.RootPath = "ClientApp/dist";
+});
 
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 
@@ -60,6 +66,17 @@ builder.Services.AddCors(options =>
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
+
+app.UseSpa(spa =>
+{
+    spa.Options.SourcePath = "ClientApp";
+
+    if (app.Environment.IsDevelopment())
+    {
+        spa.UseAngularCliServer(npmScript: "start");
+    }
+});
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
