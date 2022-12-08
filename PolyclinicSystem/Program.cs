@@ -1,7 +1,6 @@
 using AuthenticationOptions;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.Extensions.DependencyInjection;
 using Models;
 using Models.Mapping;
 using Models.Validations;
