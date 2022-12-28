@@ -39,14 +39,9 @@ namespace PolyclinicSystem.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpPut]
-        public async Task<IActionResult> UpdateCityAsync(City city)
+        public async Task<IActionResult> UpdateCityAsync(string cityName, string updateCity)
         {
-            if (_cityValidator.Validate(city).Errors.Count != 0)
-            {
-                throw new ValidationException(_cityValidator.Validate(city).Errors);
-            }
-
-            return await _cityService.UpdateCityAsync(city);
+            return await _cityService.UpdateCityAsync(cityName, updateCity);
         }
 
         [Authorize(Roles = "Admin")]

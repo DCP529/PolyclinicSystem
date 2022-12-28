@@ -1,5 +1,6 @@
 ﻿using AuthenticationOptions;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Models;
@@ -46,6 +47,14 @@ namespace PolyclinicSystem.Controllers
         public async Task<IActionResult> Register(Login login, string repeatPassword)
         {
             return await _authenticationService.RegisterAccount(login, repeatPassword);
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpGet]
+        [Route("getRole")]
+        public async Task<ActionResult<bool>> GetRole()
+        {            
+            return true;
         }
     }
 }

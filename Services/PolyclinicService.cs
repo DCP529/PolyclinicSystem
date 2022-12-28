@@ -24,7 +24,7 @@ namespace Services
 
         public async Task<List<Polyclinic>> GetPolyclinicsAsync()
         {
-            return _mapper.Map<List<Polyclinic>>(_dbContext.Polyclinics.Select(x => x).ToList());
+            return _mapper.Map<List<Polyclinic>>(_dbContext.Polyclinics.Select(x => x).Include(x => x.City).ToList());
         }
         
         public async Task<IActionResult> AddPolyclinicAsync(Polyclinic polyclinic)
@@ -73,7 +73,7 @@ namespace Services
 
             await _dbContext.SaveChangesAsync();
 
-            FileManager.DeleteImage(polyclinic.Image.FileName);
+            FileManager.DeleteImage(polyclinicDb.ImagePath);
 
             return new StatusCodeResult(200);
         }

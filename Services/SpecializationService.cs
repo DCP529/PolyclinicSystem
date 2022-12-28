@@ -42,9 +42,18 @@ namespace Services
 
         public async Task<IActionResult> ExistSpecializationAsync(Specialization specialization)
         {
-            var getSpecialization = await _dbContext.Specializations
-                .FirstOrDefaultAsync(x => x.SpecializationId == specialization.SpecializationId);
+            SpecializationDb getSpecialization = new();
 
+            if (specialization.DoctorId != Guid.Empty)
+            {
+                getSpecialization = await _dbContext.Specializations
+                    .FirstOrDefaultAsync(x => x.DoctorId == specialization.DoctorId);
+            }
+            else
+            {
+                getSpecialization = await _dbContext.Specializations
+                        .FirstOrDefaultAsync(x => x.Name == specialization.Name);
+            }
             return getSpecialization switch
             {
                 null => new BadRequestResult(),
@@ -70,7 +79,7 @@ namespace Services
             return requestResult;
         }
 
-        public async Task<IActionResult> UpdateSpecializationAsync(Specialization specialization)
+        public async Task<IActionResult> UpdateSpecializationAsync(string oldName, Specialization specialization)
         {
             var requestResult = await ExistSpecializationAsync(specialization);
 
@@ -79,7 +88,7 @@ namespace Services
                 return requestResult;
             }
 
-            var getSpecialization = await _dbContext.Specializations.Where(x => x.SpecializationId == specialization.SpecializationId)
+            var getSpecialization = await _dbContext.Specializations.Where(x => x.DoctorId == specialization.DoctorId && x.Name == oldName)
                 .FirstOrDefaultAsync();
 
             _dbContext.Entry(getSpecialization).CurrentValues.SetValues(_mapper.Map<SpecializationDb>(specialization));

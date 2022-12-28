@@ -44,14 +44,14 @@ namespace PolyclinicSystem.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpPut]
-        public async Task<IActionResult> UpdateSpecializationAsync(Specialization specialization)
+        public async Task<IActionResult> UpdateSpecializationAsync(string oldName, Specialization specialization)
         {
             if (_specializationValidator.Validate(specialization).Errors.Count != 0)
             {
                 throw new ValidationException(_specializationValidator.Validate(specialization).Errors);
             }
 
-            return await _specializationService.UpdateSpecializationAsync(specialization);
+            return await _specializationService.UpdateSpecializationAsync(oldName, specialization);
         }
 
         [Authorize(Roles = "Admin")]

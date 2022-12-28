@@ -67,12 +67,12 @@ namespace PolyclinicSystem.Controllers
         [HttpDelete]
         public async Task<IActionResult> DeletePolyclinicAsync(Polyclinic polyclinic)
         {
-            if (_polyclinicValidator.Validate(polyclinic).Errors.Count != 0)
+            if (polyclinic.Name != null)
             {
-                throw new ValidationException(_polyclinicValidator.Validate(polyclinic).Errors);
+                return await _polyclinicService.DeletePolyclinicAsync(polyclinic);
             }
 
-            return await _polyclinicService.DeletePolyclinicAsync(polyclinic);
+            return new BadRequestResult();
         }
     }
 }

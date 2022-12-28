@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Models;
@@ -29,17 +28,42 @@ namespace Services
         {
             var query = _dbContext.Doctors.AsQueryable();
 
+            if (filter.DoctorId != Guid.Empty)
+            {
+                query = query.Where(x => x.DoctorId == filter.DoctorId);
+
+                return _mapper.Map<List<Doctor>>(await query.ToListAsync());
+            }
+
             if (filter.FIO != null)
             {
                 query = query.Where(x => x.FIO == filter.FIO);
+
+                return _mapper.Map<List<Doctor>>(await query.ToListAsync());
             }
 
             if (filter.Specialization != null)
             {
-                query = query.Where(x => x == x.Specializations.Where(x => x.Name == filter.Specialization));
+                var listSpecialization = _dbContext.Specializations.Where(x => x.Name == filter.Specialization);
+
+                var listDoctorsId = new List<Guid>();
+
+                foreach (var item in listSpecialization)
+                {
+                    listDoctorsId.Add(item.DoctorId);
+                }
+
+                var listDoctor = new List<DoctorDb>();
+
+                foreach (var item in listDoctorsId)
+                {
+                    listDoctor.Add(_dbContext.Doctors.FirstOrDefault(x => x.DoctorId == item));
+                }
+
+                return _mapper.Map<List<Doctor>>(listDoctor);
             }
 
-            return _mapper.Map<List<Doctor>>(await query.ToListAsync());
+            return _mapper.Map<List<Doctor>>(query.ToList());
         }
 
         public async Task<IActionResult> AddDoctorAsync(Doctor doctor)
@@ -83,6 +107,13 @@ namespace Services
                 return new BadRequestResult();
             }
 
+            var specializations = await _dbContext.Specializations.Where(x => x.DoctorId == doctor.DoctorId).ToListAsync();
+
+            if (specializations != null)
+            {
+                _dbContext.Specializations.RemoveRange(specializations);
+            }
+
             _dbContext.Doctors.Remove(doctor);
 
             FileManager.DeleteImage(doctor.ImagePath);
@@ -101,7 +132,7 @@ namespace Services
                 return requestResult;
             }
 
-            var getDoctor = await _dbContext.Doctors.Where(x => x.DoctorId == doctor.DoctorId).FirstOrDefaultAsync();
+            var getDoctor = await _dbContext.Doctors.Where(x => x.FIO == doctor.FIO).FirstOrDefaultAsync();
 
             _dbContext.Entry(getDoctor).CurrentValues.SetValues(_mapper.Map<DoctorDb>(doctor));
 
@@ -117,6 +148,8 @@ namespace Services
         public async Task<IActionResult> GetImageDoctorAsync(Guid doctorId)
         {
             var getDoctor = await _dbContext.Doctors.Where(x => x.DoctorId == doctorId).FirstOrDefaultAsync();
+
+            getDoctor.ImagePath.Replace("//", "/");
 
             return await new FileManager().GetImageAsync(getDoctor.ImagePath);
         }

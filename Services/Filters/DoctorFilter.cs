@@ -8,6 +8,7 @@ namespace Services.Filters
 {
     public class DoctorFilter
     {
+        public Guid DoctorId { get; set; }
         public string FIO { get; set; }
 
         public string Specialization { get; set; }

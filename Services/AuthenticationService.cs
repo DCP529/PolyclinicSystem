@@ -61,9 +61,11 @@ namespace Services
                 await _dbContext.Roles.AddAsync(role);
                 await _dbContext.Accounts.AddAsync(account);
                 await _dbContext.SaveChangesAsync();
+
+                return new StatusCodeResult(200);
             }
 
-            return new StatusCodeResult(200);
+            return new BadRequestResult();
         }
 
         public string GenerateJWT(Account account, IOptions<AuthOptions> authOptions)

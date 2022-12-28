@@ -52,14 +52,20 @@ namespace Services
             };
         }
 
-        public async Task<IActionResult> UpdateCityAsync(City city)
+        public async Task<IActionResult> UpdateCityAsync(string cityName, string updateCity)
         {
-            var getCity = await _dbContext.Cities.Where(x => x.CityId == city.CityId).FirstOrDefaultAsync();
+            var getCity = await _dbContext.Cities.Where(x => x.Name == cityName).FirstOrDefaultAsync();
 
             if (getCity == null)
             {
                 return new BadRequestResult();
             }
+
+            var city = new City()
+            {
+                CityId = getCity.CityId,
+                Name = updateCity
+            };
 
             _dbContext.Entry(getCity).CurrentValues.SetValues(_mapper.Map<CityDb>(city));
 

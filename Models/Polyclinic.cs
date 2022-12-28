@@ -14,6 +14,8 @@ namespace Models
         public IFormFile Image { get; set; }
         public Guid CityId { get; set; }
         public Guid DoctorId { get; set; }
+
+        [JsonIgnore]
         public City City { get; set; }
 
         [JsonIgnore]
