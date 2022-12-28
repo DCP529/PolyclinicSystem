@@ -3,7 +3,19 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.3.32929.385
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PolyclinicSystem", "PolyclinicSystem\PolyclinicSystem.csproj", "{375D22D9-63A7-47CC-9F49-274074532474}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PolyclinicSystemAPI", "PolyclinicSystem\PolyclinicSystemAPI.csproj", "{375D22D9-63A7-47CC-9F49-274074532474}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Models", "Models\Models.csproj", "{19998FDF-94BA-47FB-8B9E-2FC452A8D3DB}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Services", "Services\Services.csproj", "{8BED6AFC-E1C8-4156-8259-CC87E7022CA0}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AuthenticationOptions", "AuthenticationOptions\AuthenticationOptions.csproj", "{9AEE66DA-086B-410C-A1B1-41D269C402CF}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "API", "API", "{59A10111-5817-4D30-BBDA-0A18FE2C4276}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Application", "Application", "{10BAE4D9-7035-4F6D-BB57-D835D8D0BB26}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ClientApp", "ClientApp", "{399BF401-B28D-411C-ACD0-9A65764C6203}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,9 +27,27 @@ Global
 		{375D22D9-63A7-47CC-9F49-274074532474}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{375D22D9-63A7-47CC-9F49-274074532474}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{375D22D9-63A7-47CC-9F49-274074532474}.Release|Any CPU.Build.0 = Release|Any CPU
+		{19998FDF-94BA-47FB-8B9E-2FC452A8D3DB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{19998FDF-94BA-47FB-8B9E-2FC452A8D3DB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{19998FDF-94BA-47FB-8B9E-2FC452A8D3DB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{19998FDF-94BA-47FB-8B9E-2FC452A8D3DB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8BED6AFC-E1C8-4156-8259-CC87E7022CA0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8BED6AFC-E1C8-4156-8259-CC87E7022CA0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8BED6AFC-E1C8-4156-8259-CC87E7022CA0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8BED6AFC-E1C8-4156-8259-CC87E7022CA0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9AEE66DA-086B-410C-A1B1-41D269C402CF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9AEE66DA-086B-410C-A1B1-41D269C402CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9AEE66DA-086B-410C-A1B1-41D269C402CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9AEE66DA-086B-410C-A1B1-41D269C402CF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{375D22D9-63A7-47CC-9F49-274074532474} = {59A10111-5817-4D30-BBDA-0A18FE2C4276}
+		{19998FDF-94BA-47FB-8B9E-2FC452A8D3DB} = {10BAE4D9-7035-4F6D-BB57-D835D8D0BB26}
+		{8BED6AFC-E1C8-4156-8259-CC87E7022CA0} = {10BAE4D9-7035-4F6D-BB57-D835D8D0BB26}
+		{9AEE66DA-086B-410C-A1B1-41D269C402CF} = {10BAE4D9-7035-4F6D-BB57-D835D8D0BB26}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B02028AC-0534-4954-9D90-71DF1138A551}
