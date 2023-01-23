@@ -3,6 +3,7 @@ using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Models;
+using Models.ModelsDb;
 using Models.Validations;
 using Services;
 using System.Security.Claims;
@@ -18,11 +19,11 @@ namespace PolyclinicSystem.Controllers
         private PolyclinicValidator _polyclinicValidator;
         private Guid _userId => Guid.Parse(User.Claims.Single(c => c.Type == ClaimTypes.NameIdentifier).Value);
 
-        public PolyclinicController(IMapper mapper, IWebHostEnvironment webHostEvironment, AbstractValidator<Polyclinic> polyclinicValidator)
+        public PolyclinicController(PolyclinicDbContext dbContext, IMapper mapper, IWebHostEnvironment webHostEvironment, AbstractValidator<Polyclinic> polyclinicValidator)
         {
             _webHostEvironment = webHostEvironment;
             _mapper = mapper;
-            _polyclinicService = new PolyclinicService(_mapper, _webHostEvironment);   
+            _polyclinicService = new PolyclinicService(_mapper, _webHostEvironment, dbContext);   
             _polyclinicValidator = (PolyclinicValidator)polyclinicValidator;
         }
 
@@ -48,7 +49,24 @@ namespace PolyclinicSystem.Controllers
                 throw new ValidationException(_polyclinicValidator.Validate(polyclinic).Errors);
             }
 
-            return await _polyclinicService.AddPolyclinicAsync(polyclinic);
+            await _polyclinicService.AddPolyclinicAsync(polyclinic);
+
+            return Ok();
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPost]
+        [Route("AddDoctorForPolyclinic")]
+        public async Task<IActionResult> AddDoctorForPolyclinic(Guid polyclinicId, Doctor doctor)
+        {
+            if(polyclinicId != Guid.Empty && doctor.DoctorId != Guid.Empty)
+            {
+                await _polyclinicService.AddDoctorForPolyclinicAsync(polyclinicId, doctor);
+
+                return Ok();
+            }
+
+            return new BadRequestResult();
         }
 
         [Authorize(Roles = "Admin")]
@@ -60,7 +78,9 @@ namespace PolyclinicSystem.Controllers
                 throw new ValidationException(_polyclinicValidator.Validate(polyclinic).Errors);
             }
 
-            return await _polyclinicService.UpdatePolyclinicAsync(polyclinic);
+            await _polyclinicService.UpdatePolyclinicAsync(polyclinic);
+
+            return Ok();
         }
 
         [Authorize(Roles = "Admin")]
@@ -69,10 +89,22 @@ namespace PolyclinicSystem.Controllers
         {
             if (polyclinic.Name != null)
             {
-                return await _polyclinicService.DeletePolyclinicAsync(polyclinic);
+                await _polyclinicService.DeletePolyclinicAsync(polyclinic);
+
+                return Ok();
             }
 
             return new BadRequestResult();
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpDelete]
+        [Route("DeleteDoctorForPolyclinic")]
+        public async Task<IActionResult> DeleteDoctorForPolyclinic(Guid polyclinicId, Guid doctorId)
+        {
+            await _polyclinicService.DeleteDoctorForPolyclinic(polyclinicId, doctorId);
+
+            return Ok();
         }
     }
 }

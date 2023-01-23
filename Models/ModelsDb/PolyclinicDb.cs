@@ -26,13 +26,16 @@ namespace Models.ModelsDb
         [Column("city_id")]
         public Guid CityId { get; set; }
 
-        [Column("doctor_id")]
-        public Guid DoctorId { get; set; }
+        [Column("archived")]
+        public bool Archived { get; set; }
 
-        [JsonIgnore]
-        public CityDb City { get; set; }
+        public virtual CityDb City { get; set; }
+        public virtual ICollection<DoctorDb> Doctors { get; set; }
 
-        [ForeignKey(nameof(DoctorId))]
-        public ICollection<DoctorDb> Doctors { get; set; } = new List<DoctorDb>();
+        public PolyclinicDb()
+        {
+            City = new CityDb();
+            Doctors = new List<DoctorDb>();
+        }
     }
 }

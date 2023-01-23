@@ -10,15 +10,16 @@ namespace Models
         public string Name { get; set; }
         public string Address { get; set; }
         public int ContactNumber { get; set; }
-        [JsonIgnore]
         public IFormFile Image { get; set; }
         public Guid CityId { get; set; }
-        public Guid DoctorId { get; set; }
+        public bool Archived { get; set; }
+        public virtual City City { get; set; }
 
-        [JsonIgnore]
-        public City City { get; set; }
+        public virtual ICollection<Doctor> Doctors { get; set; }
 
-        [JsonIgnore]
-        public ICollection<Doctor> Doctors { get; set; } = new List<Doctor>();
+        public Polyclinic()
+        {
+            Doctors = new List<Doctor>();
+        }
     }
 }

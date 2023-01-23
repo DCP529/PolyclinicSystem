@@ -10,8 +10,13 @@ namespace Models
         public string Name { get; set; }
         public Guid DoctorId { get; set; }
         public int ExperienceSpecialization { get; set; }
+        public bool Archived { get; set; }
 
-        [JsonIgnore]
-        public List<Doctor> Doctors { get; set; } = new List<Doctor>();
+        public virtual List<Doctor> Doctors { get; set; } 
+
+        public Specialization()
+        {
+            Doctors = new List<Doctor>();
+        }
     }
 }

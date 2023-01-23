@@ -5,7 +5,6 @@ using Microsoft.EntityFrameworkCore;
 using Models;
 using Models.ModelsDb;
 using Services.Filters;
-using System.Collections.Generic;
 
 namespace Services
 {
@@ -16,9 +15,9 @@ namespace Services
         private IWebHostEnvironment _webHostEvironment;
         private readonly string path;
 
-        public DoctorService(IMapper mapper, IWebHostEnvironment webHostEvironment)
+        public DoctorService(IMapper mapper, IWebHostEnvironment webHostEvironment, PolyclinicDbContext dbContext)
         {
-            _dbContext = new PolyclinicDbContext();
+            _dbContext = dbContext;
             _mapper = mapper;
             _webHostEvironment = webHostEvironment;
             path = _webHostEvironment.WebRootPath + "\\Images\\";
@@ -26,7 +25,7 @@ namespace Services
 
         public async Task<List<Doctor>> GetDoctorsAsync(DoctorFilter filter)
         {
-            var query = _dbContext.Doctors.AsQueryable();
+            var query = _dbContext.Doctors.Where(x => x.Archived == false).AsQueryable();
 
             if (filter.DoctorId != Guid.Empty)
             {
@@ -66,13 +65,13 @@ namespace Services
             return _mapper.Map<List<Doctor>>(query.ToList());
         }
 
-        public async Task<IActionResult> AddDoctorAsync(Doctor doctor)
+        public async Task AddDoctorAsync(Doctor doctor)
         {
             var requestResult = await ExistDoctorAsync(doctor);
 
             if (requestResult is not BadRequestResult)
             {
-                return new BadRequestResult();
+                throw new Exception("Такой доктор уже существует!");
             }
 
             var mappedDoctor = _mapper.Map<DoctorDb>(doctor);
@@ -81,13 +80,12 @@ namespace Services
             await _dbContext.SaveChangesAsync();
 
             await FileManager.SaveImageAsync(doctor.Image, path);
-
-            return new StatusCodeResult(200);
         }
 
         public async Task<IActionResult> ExistDoctorAsync(Doctor doctor)
         {
-            var getDoctor = await _dbContext.Doctors.FirstOrDefaultAsync(x => x.DoctorId == doctor.DoctorId);
+            var getDoctor = await _dbContext.Doctors.FirstOrDefaultAsync(x => x.DoctorId == doctor.DoctorId
+            || x.FIO == doctor.FIO);
 
             return getDoctor switch
             {
@@ -96,7 +94,7 @@ namespace Services
             };
         }
 
-        public async Task<IActionResult> DeleteDoctorAsync(string doctorFIO)
+        public async Task DeleteDoctorAsync(string doctorFIO)
         {
             var doctor = await _dbContext.Doctors.Where(x => x.FIO == doctorFIO).FirstOrDefaultAsync();
 
@@ -104,32 +102,30 @@ namespace Services
 
             if (requestResult is BadRequestResult)
             {
-                return new BadRequestResult();
+                throw new Exception("Нельзя удалить не существующего доктора!");
             }
 
             var specializations = await _dbContext.Specializations.Where(x => x.DoctorId == doctor.DoctorId).ToListAsync();
 
             if (specializations != null)
             {
-                _dbContext.Specializations.RemoveRange(specializations);
+                specializations.ForEach(x => x.Archived = true);
             }
 
-            _dbContext.Doctors.Remove(doctor);
+            doctor.Archived = true;
 
             FileManager.DeleteImage(doctor.ImagePath);
 
             await _dbContext.SaveChangesAsync();
-
-            return new StatusCodeResult(200);
         }
 
-        public async Task<IActionResult> UpdateDoctorAsync(Doctor doctor)
+        public async Task UpdateDoctorAsync(Doctor doctor)
         {
             var requestResult = await ExistDoctorAsync(doctor);
 
             if (requestResult is BadRequestResult)
             {
-                return requestResult;
+                throw new Exception("Такого доктора не существует!");
             }
 
             var getDoctor = await _dbContext.Doctors.Where(x => x.FIO == doctor.FIO).FirstOrDefaultAsync();
@@ -141,8 +137,6 @@ namespace Services
             FileManager.DeleteImage(getDoctor.ImagePath);
 
             await FileManager.SaveImageAsync(doctor.Image, path);
-
-            return requestResult;
         }
 
         public async Task<IActionResult> GetImageDoctorAsync(Guid doctorId)

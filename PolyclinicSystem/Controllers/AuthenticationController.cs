@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Models;
+using Models.ModelsDb;
 using Services;
 
 namespace PolyclinicSystem.Controllers
@@ -16,10 +17,10 @@ namespace PolyclinicSystem.Controllers
         private IMapper _mapper;
 
 
-        public AuthenticationController(IMapper mapper,IOptions<AuthOptions> options)
+        public AuthenticationController(IMapper mapper,IOptions<AuthOptions> options, PolyclinicDbContext dbContext)
         {
             _mapper = mapper;
-            _authenticationService = new AuthenticationService(_mapper);
+            _authenticationService = new AuthenticationService(_mapper, dbContext);
             _authOptions = options;
         }
 

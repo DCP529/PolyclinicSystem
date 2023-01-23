@@ -3,6 +3,7 @@ using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Models;
+using Models.ModelsDb;
 using Models.Validations;
 using Services;
 using System.Security.Claims;
@@ -17,10 +18,10 @@ namespace PolyclinicSystem.Controllers
         private SpecializationValidator _specializationValidator;
         private Guid _userId => Guid.Parse(User.Claims.Single(c => c.Type == ClaimTypes.NameIdentifier).Value);
 
-        public SpecializationController(IMapper mapper, AbstractValidator<Specialization> specializationValidator)
+        public SpecializationController(PolyclinicDbContext dbContext, IMapper mapper, AbstractValidator<Specialization> specializationValidator)
         {
             _mapper = mapper;
-            _specializationService = new SpecializationService(_mapper);
+            _specializationService = new SpecializationService(_mapper, dbContext);
             _specializationValidator = (SpecializationValidator)specializationValidator;
         }
 
@@ -39,7 +40,9 @@ namespace PolyclinicSystem.Controllers
                 throw new ValidationException(_specializationValidator.Validate(specialization).Errors);
             }
 
-            return await _specializationService.AddSpecializationAsync(specialization);
+            await _specializationService.AddSpecializationAsync(specialization);
+
+            return Ok();
         }
 
         [Authorize(Roles = "Admin")]
@@ -51,14 +54,18 @@ namespace PolyclinicSystem.Controllers
                 throw new ValidationException(_specializationValidator.Validate(specialization).Errors);
             }
 
-            return await _specializationService.UpdateSpecializationAsync(oldName, specialization);
+            await _specializationService.UpdateSpecializationAsync(oldName, specialization);
+
+            return Ok();
         }
 
         [Authorize(Roles = "Admin")]
         [HttpDelete]
         public async Task<IActionResult> DeleteSpecializationAsync(string specializationName)
         {
-            return await _specializationService.DeleteSpecializationAsync(specializationName);
+            await _specializationService.DeleteSpecializationAsync(specializationName);
+
+            return Ok();
         }
     }
 }

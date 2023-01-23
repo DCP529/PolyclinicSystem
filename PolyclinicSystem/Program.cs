@@ -1,8 +1,10 @@
 using AuthenticationOptions;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Models;
 using Models.Mapping;
+using Models.ModelsDb;
 using Models.Validations;
 using PolyclinicSystem.Middlewares;
 
@@ -11,6 +13,10 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 builder.Services.AddControllers();
+
+string connection = builder.Configuration.GetConnectionString("DefaultConnection");
+
+builder.Services.AddDbContext<PolyclinicDbContext>(options => options.UseNpgsql(connection));
 
 builder.Services.Configure<AuthOptions>(builder.Configuration.GetSection("Auth"));
 
@@ -68,6 +74,8 @@ if (app.Environment.IsDevelopment())
 app.UseCustomExceptionHandler();
 
 app.UseCors();
+
+app.UseStaticFiles();
 
 app.UseAuthentication();
 

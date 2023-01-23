@@ -19,7 +19,15 @@ namespace Models.ModelsDb
         [Column("experience_specialization")]
         public int ExperienceSpecialization { get; set; }
 
+        [Column("archived")]
+        public bool Archived { get; set; }
+
         [ForeignKey(nameof(DoctorId))]
-        public ICollection<DoctorDb> Doctors { get; set; } = new List<DoctorDb>();
+        public ICollection<DoctorDb> Doctors { get; set; }
+
+        public SpecializationDb()
+        {
+            Doctors = new List<DoctorDb>();
+        }
     }
 }
