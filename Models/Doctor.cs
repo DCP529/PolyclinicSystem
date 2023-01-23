@@ -13,11 +13,18 @@ namespace Models
         public IFormFile Image { get; set; }
         public string ShortDescription { get; set; }
         public string FullDescription { get; set; }
+        public bool Archived { get; set; }
 
         [JsonIgnore]
-        public List<Polyclinic> Polyclinics { get; set; } = new List<Polyclinic>();
+        public virtual List<Polyclinic> Polyclinics { get; set; }
 
         [JsonIgnore]
-        public List<Specialization> Specializations { get; set; } = new List<Specialization>(); 
+        public virtual List<Specialization> Specializations { get; set; }
+
+        public Doctor()
+        {
+            Specializations = new List<Specialization>();
+            Polyclinics = new List<Polyclinic>();
+        }
     }
 }

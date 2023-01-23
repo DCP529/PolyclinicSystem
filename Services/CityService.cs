@@ -11,24 +11,24 @@ namespace Services
         private PolyclinicDbContext _dbContext;
         private IMapper _mapper;
 
-        public CityService(IMapper mapper)
+        public CityService(IMapper mapper, PolyclinicDbContext dbContext)
         {
-            _dbContext = new PolyclinicDbContext();
+            _dbContext = dbContext;
             _mapper = mapper;
         }
                 
         public async Task<List<City>> GetCitiesAsync()
         {
-            return _mapper.Map<List<City>>(await _dbContext.Cities.ToListAsync());
+            return _mapper.Map<List<City>>(await _dbContext.Cities.Where(x => x.Archived == false).ToListAsync());
         }
 
-        public async Task<IActionResult> AddCityAsync(string cityName)
+        public async Task AddCityAsync(string cityName)
         {
             var requestResult = await ExistCityAsync(cityName);
 
             if (requestResult is not BadRequestResult)
             {
-                return new BadRequestResult();
+                throw new Exception("Такой город уже существует!");
             }
 
             await _dbContext.Cities.AddAsync(new CityDb()
@@ -36,9 +36,8 @@ namespace Services
                 Name = cityName,
                 CityId = Guid.NewGuid()
             });
-            await _dbContext.SaveChangesAsync();
 
-            return new StatusCodeResult(200);
+            await _dbContext.SaveChangesAsync();
         }
 
         public async Task<IActionResult> ExistCityAsync(string cityName)
@@ -52,13 +51,13 @@ namespace Services
             };
         }
 
-        public async Task<IActionResult> UpdateCityAsync(string cityName, string updateCity)
+        public async Task UpdateCityAsync(string cityName, string updateCity)
         {
             var getCity = await _dbContext.Cities.Where(x => x.Name == cityName).FirstOrDefaultAsync();
 
             if (getCity == null)
             {
-                return new BadRequestResult();
+                throw new Exception("Такого города не существует!");
             }
 
             var city = new City()
@@ -70,24 +69,22 @@ namespace Services
             _dbContext.Entry(getCity).CurrentValues.SetValues(_mapper.Map<CityDb>(city));
 
             await _dbContext.SaveChangesAsync();
-
-            return new StatusCodeResult(200);
         }
 
-        public async Task<IActionResult> DeleteCityAsync(string cityName)
+        public async Task DeleteCityAsync(string cityName)
         {
             var requestResult = await ExistCityAsync(cityName);
 
             if (requestResult is BadRequestResult)
             {
-                return requestResult;
+                throw new Exception("Нельзя удалить несуществующий город!");
             }
 
-            _dbContext.Cities.Remove(await _dbContext.Cities.Where(x => x.Name == cityName).FirstOrDefaultAsync());
+            var city = await _dbContext.Cities.Where(x => x.Name == cityName).FirstOrDefaultAsync();
+
+            city.Archived = true;
 
             await _dbContext.SaveChangesAsync();
-
-            return requestResult;
         }
     }
 }

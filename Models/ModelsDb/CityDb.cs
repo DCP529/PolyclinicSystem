@@ -13,7 +13,15 @@ namespace Models.ModelsDb
         [Column("name")]
         public string Name { get; set; }
 
+        [Column("archived")]
+        public bool Archived { get; set; }
+
         [ForeignKey(nameof(CityId))]
-        public ICollection<PolyclinicDb> Polyclinics { get; set; } = new List<PolyclinicDb>();
+        public virtual ICollection<PolyclinicDb> Polyclinics { get; set; }
+
+        public CityDb()
+        {
+            Polyclinics = new List<PolyclinicDb>();
+        }
     }
 }

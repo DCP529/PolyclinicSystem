@@ -19,11 +19,11 @@ namespace Models.Mapping
 
             CreateMap<DoctorDb, Doctor>().ReverseMap()
                 .ForMember(x => x.ImagePath, x => x.MapFrom(x =>
-                $"C:\\Users\\37377\\source\\repos\\PolyclinicSystem\\PolyclinicSystem\\wwwroot\\Images\\{x.Image.FileName}"));
+                Environment.CurrentDirectory + $"\\wwwroot\\Images\\{x.Image.FileName}"));
 
             CreateMap<PolyclinicDb, Polyclinic>().ReverseMap()
                 .ForMember(x => x.ImagePath, x => x.MapFrom(x =>
-                                $"C:\\Users\\37377\\source\\repos\\PolyclinicSystem\\PolyclinicSystem\\wwwroot\\Images\\{x.Image.FileName}"));
+                                Environment.CurrentDirectory + $"\\wwwroot\\Images\\{x.Image.FileName}"));
         }
     }
 }

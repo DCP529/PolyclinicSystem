@@ -18,9 +18,9 @@ namespace Services
         private PolyclinicDbContext _dbContext;
         private IMapper _mapper;
 
-        public AuthenticationService(IMapper mapper)
+        public AuthenticationService(IMapper mapper, PolyclinicDbContext dbContext)
         {
-            _dbContext = new PolyclinicDbContext();
+            _dbContext = dbContext;
             _mapper = mapper;
         }
 

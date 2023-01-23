@@ -12,32 +12,30 @@ namespace Services
         private PolyclinicDbContext _dbContext;
         private IMapper _mapper;
 
-        public SpecializationService(IMapper mapper)
+        public SpecializationService(IMapper mapper, PolyclinicDbContext dbContext)
         {
-            _dbContext = new PolyclinicDbContext();
+            _dbContext = dbContext;
             _mapper = mapper;
         }
 
         public async Task<List<Specialization>> GetSpecializationsAsync()
         {
-            return _mapper.Map<List<Specialization>>(await _dbContext.Specializations.ToListAsync());
+            return _mapper.Map<List<Specialization>>(await _dbContext.Specializations.Where(x => x.Archived == false).ToListAsync());
         }
 
-        public async Task<IActionResult> AddSpecializationAsync(Specialization specialization)
+        public async Task AddSpecializationAsync(Specialization specialization)
         {
             var requestResult = await ExistSpecializationAsync(specialization);
 
             if (requestResult is not BadRequestResult)
             {
-                return new BadRequestResult();
+                throw new Exception("Такая специализация уже существует!");
             }
 
             var mappedSpecialization = _mapper.Map<SpecializationDb>(specialization);
 
             await _dbContext.Specializations.AddAsync(mappedSpecialization);
             await _dbContext.SaveChangesAsync();
-
-            return new StatusCodeResult(200);
         }
 
         public async Task<IActionResult> ExistSpecializationAsync(Specialization specialization)
@@ -61,7 +59,7 @@ namespace Services
             };
         }
 
-        public async Task<IActionResult> DeleteSpecializationAsync(string specializationName)
+        public async Task DeleteSpecializationAsync(string specializationName)
         {
             var getSpecialization = await _dbContext.Specializations.Where(x => x.Name == specializationName).FirstOrDefaultAsync();
 
@@ -69,23 +67,21 @@ namespace Services
 
             if (requestResult is BadRequestResult)
             {
-                return requestResult;
+                throw new Exception("Такой специализации не существует!");
             }
 
-            _dbContext.Specializations.Remove(getSpecialization);
+            getSpecialization.Archived = true;
 
             await _dbContext.SaveChangesAsync();
-
-            return requestResult;
         }
 
-        public async Task<IActionResult> UpdateSpecializationAsync(string oldName, Specialization specialization)
+        public async Task UpdateSpecializationAsync(string oldName, Specialization specialization)
         {
             var requestResult = await ExistSpecializationAsync(specialization);
 
             if (requestResult is BadRequestResult)
             {
-                return requestResult;
+                throw new Exception("Такой специализации не существует!");
             }
 
             var getSpecialization = await _dbContext.Specializations.Where(x => x.DoctorId == specialization.DoctorId && x.Name == oldName)
@@ -94,8 +90,6 @@ namespace Services
             _dbContext.Entry(getSpecialization).CurrentValues.SetValues(_mapper.Map<SpecializationDb>(specialization));
 
             await _dbContext.SaveChangesAsync();
-
-            return requestResult;
         }
     }
 }

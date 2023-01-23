@@ -3,6 +3,7 @@ using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Models;
+using Models.ModelsDb;
 using Models.Validations;
 using Services;
 using Services.Filters;
@@ -19,11 +20,11 @@ namespace PolyclinicSystem.Controllers
         private DoctorValidator _doctorValidator;
         private Guid _userId => Guid.Parse(User.Claims.Single(c => c.Type == ClaimTypes.NameIdentifier).Value);
 
-        public DoctorController(IMapper mapper, IWebHostEnvironment webHostEvironment, AbstractValidator<Doctor> doctorValidator)
+        public DoctorController(PolyclinicDbContext dbContext, IMapper mapper, IWebHostEnvironment webHostEvironment, AbstractValidator<Doctor> doctorValidator)
         {
             _mapper = mapper;
             _webHostEvironment = webHostEvironment;
-            _doctorService = new DoctorService(_mapper, _webHostEvironment);
+            _doctorService = new DoctorService(_mapper, _webHostEvironment, dbContext);
             _doctorValidator = (DoctorValidator)doctorValidator;
         }
 
@@ -49,7 +50,9 @@ namespace PolyclinicSystem.Controllers
                 throw new ValidationException(_doctorValidator.Validate(doctor).Errors);
             }
 
-            return await _doctorService.AddDoctorAsync(doctor);
+            await _doctorService.AddDoctorAsync(doctor);
+
+            return Ok();
         }
 
         [Authorize(Roles = "Admin")]
@@ -61,14 +64,18 @@ namespace PolyclinicSystem.Controllers
                 throw new ValidationException(_doctorValidator.Validate(doctor).Errors);
             }
 
-            return await _doctorService.UpdateDoctorAsync(doctor);
+            await _doctorService.UpdateDoctorAsync(doctor);
+
+            return Ok();
         }
 
         [Authorize(Roles = "Admin")]
         [HttpDelete]
         public async Task<IActionResult> DeleteDoctorAsync(string doctorFIO)
         {
-            return await _doctorService.DeleteDoctorAsync(doctorFIO);
+            await _doctorService.DeleteDoctorAsync(doctorFIO);
+
+            return Ok();
         }
     }
 }
