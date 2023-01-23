@@ -43,7 +43,7 @@ namespace Services
 
             if (filter.Specialization != null)
             {
-                var listSpecialization = _dbContext.Specializations.Where(x => x.Name == filter.Specialization);
+                var listSpecialization = _dbContext.Specializations.Where(x => x.Name == filter.Specialization && x.Archived == false);
 
                 var listDoctorsId = new List<Guid>();
 
