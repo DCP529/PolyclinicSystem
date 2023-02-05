@@ -45,13 +45,14 @@ namespace Services
             if (specialization.DoctorId != Guid.Empty)
             {
                 getSpecialization = await _dbContext.Specializations
-                    .FirstOrDefaultAsync(x => x.DoctorId == specialization.DoctorId);
+                    .FirstOrDefaultAsync(x => x.DoctorId == specialization.DoctorId && x.Archived == false);
             }
             else
             {
                 getSpecialization = await _dbContext.Specializations
-                        .FirstOrDefaultAsync(x => x.Name == specialization.Name);
+                        .FirstOrDefaultAsync(x => x.Name == specialization.Name && x.Archived == false);
             }
+
             return getSpecialization switch
             {
                 null => new BadRequestResult(),
